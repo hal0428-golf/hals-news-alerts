@@ -1,0 +1,19 @@
+{
+  "name": "hals-news-alerts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Checks news feeds every few minutes and sends a push notification for significant breaking news.",
+  "scripts": {
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "dry-run": "tsx src/run.ts --mode dry-run"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.11.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3"
+  }
+}

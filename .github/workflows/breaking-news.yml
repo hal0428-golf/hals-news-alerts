@@ -1,0 +1,54 @@
+name: Breaking news check
+
+on:
+  schedule:
+    # Every 5 minutes is GitHub's shortest interval. GitHub may start runs late when it is busy.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'dry-run = show what would happen; test = send a test notification; run = normal'
+        type: choice
+        default: dry-run
+        options:
+          - dry-run
+          - test
+          - run
+
+permissions:
+  contents: write
+
+concurrency:
+  group: breaking-news
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check feeds and send alert if needed
+        env:
+          EXPO_PUSH_TOKEN: ${{ secrets.EXPO_PUSH_TOKEN }}
+          RUN_MODE: ${{ github.event.inputs.mode || 'run' }}
+        run: npx tsx src/run.ts --mode "$RUN_MODE"
+
+      - name: Save state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state/state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update alert state"
+            git pull --rebase
+            git push
+          fi
