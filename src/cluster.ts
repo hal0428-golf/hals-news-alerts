@@ -4,7 +4,9 @@ import { Story } from './parse';
 /** What counts as "breaking". Change these numbers to make alerts rarer or more frequent. */
 export const RULES = {
   /** A story must be reported by at least this many different outlets... */
-  minOutlets: 4,
+  minOutlets: 3,
+  /** ...and at least one of them must be one of these (keeps out stories only commentary sites echo). */
+  anchorOutlets: ['NPR', 'Fox News'],
   /** ...with the newest of those reports no older than this (minutes). */
   freshMinutes: 45,
   /** Only reports from the last this-many minutes are considered at all. */
@@ -113,7 +115,8 @@ export function findCandidates(all: Story[], now: Date, rules = RULES): Candidat
     const outlets = new Set(reports.map((r) => r.source)).size;
     const newest = new Date(Math.max(...reports.map((r) => r.publishedAt!.getTime())));
     const fresh = (now.getTime() - newest.getTime()) / 60000 <= rules.freshMinutes;
-    if (outlets >= rules.minOutlets && fresh) {
+    const anchored = reports.some((r) => rules.anchorOutlets.includes(r.source));
+    if (outlets >= rules.minOutlets && anchored && fresh) {
       reports.forEach((r) => used.add(r));
       out.push({ story: headlineFor(reports), reports, outlets, reason: 'multi-outlet', newest });
     }

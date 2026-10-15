@@ -37,7 +37,7 @@ test('different stories are not matched', () => {
   assert.ok(!sameStory('Trump signs executive order on housing', 'Trump visits Texas border for rally'));
 });
 
-test('a story covered by 4+ outlets is a candidate; headline comes from the highest-priority outlet', () => {
+test('a story covered by 3+ outlets including NPR or Fox is a candidate; headline comes from the highest-priority outlet', () => {
   const c = findCandidates(SCOTUS, NOW);
   assert.equal(c.length, 1);
   assert.equal(c[0]!.reason, 'multi-outlet');
@@ -45,12 +45,19 @@ test('a story covered by 4+ outlets is a candidate; headline comes from the high
   assert.equal(c[0]!.story.source, 'NPR');
 });
 
-test('3 outlets is not enough', () => {
-  assert.equal(findCandidates(SCOTUS.slice(0, 3), NOW).length, 0);
+test('2 outlets is not enough, 3 is', () => {
+  assert.equal(findCandidates(SCOTUS.slice(0, 2), NOW).length, 0);
+  assert.equal(findCandidates(SCOTUS.slice(0, 3), NOW).length, 1);
+});
+
+test('3 outlets that do not include NPR or Fox News is not enough', () => {
+  const commentary = SCOTUS.slice(2, 5); // Washington Examiner, National Review, Daily Caller
+  assert.equal(findCandidates(commentary, NOW).length, 0);
+  assert.equal(findCandidates([...commentary, SCOTUS[1]!], NOW).length, 1);
 });
 
 test('the same outlet reporting twice counts once', () => {
-  const dup = [...SCOTUS.slice(0, 3), story('NPR', 'Supreme Court tariffs ruling explained: what Trump loses', 4)];
+  const dup = [SCOTUS[0]!, SCOTUS[1]!, story('NPR', 'Supreme Court tariffs ruling explained: what Trump loses', 4)];
   assert.equal(findCandidates(dup, NOW).length, 0);
 });
 

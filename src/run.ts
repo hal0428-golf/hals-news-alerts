@@ -75,11 +75,17 @@ async function main() {
   const decision = decide(candidates, state, now);
 
   if (mode === 'dry-run') {
-    const recent = stories.filter((s) => s.publishedAt && now.getTime() - s.publishedAt.getTime() < 90 * 60000);
-    console.log(`\n${recent.length} stories from the last 90 minutes. Stories reported by 2+ outlets:`);
-    for (const g of clusterStories(recent)) {
-      const outlets = new Set(g.map((s) => s.source));
-      if (outlets.size >= 2) console.log(`  ${outlets.size} outlets: ${g[0]!.title}`);
+    // Wider than the real rule (6 hours) so a single dry run shows how often stories spread.
+    const wide = stories.filter((s) => s.publishedAt && now.getTime() - s.publishedAt.getTime() < 360 * 60000);
+    console.log(`\n${wide.length} stories from the last 6 hours. Stories reported by 2+ outlets (most outlets first):`);
+    const groups = clusterStories(wide)
+      .map((g) => ({ g, outlets: new Set(g.map((s) => s.source)) }))
+      .filter((x) => x.outlets.size >= 2)
+      .sort((a, b) => b.outlets.size - a.outlets.size);
+    for (const { g, outlets } of groups.slice(0, 20)) {
+      const newest = Math.max(...g.map((s) => s.publishedAt!.getTime()));
+      const mins = Math.round((now.getTime() - newest) / 60000);
+      console.log(`  ${outlets.size} outlets (${[...outlets].join(', ')}), newest ${mins} min ago: ${g[0]!.title}`);
     }
     console.log(`\nQualifying as breaking: ${candidates.length}`);
     candidates.forEach((c) => console.log('  ' + describe(c)));

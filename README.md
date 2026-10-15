@@ -6,8 +6,8 @@ notification to Hal's iPhone through Expo's free push service. Tapping the alert
 in the app.
 
 ## What counts as breaking (src/cluster.ts, `RULES`)
-- The same story (similar headlines) is reported by **4 or more different outlets**, and the newest
-  of those reports is **under 45 minutes old**; or
+- The same story (similar headlines) is reported by **3 or more different outlets, at least one of
+  them NPR or Fox News**, and the newest of those reports is **under 45 minutes old**; or
 - NPR or Fox News publishes a headline that starts with "BREAKING:" or "JUST IN:" in the last 30 minutes.
 
 ## How often (src/policy.ts, `LIMITS`)
