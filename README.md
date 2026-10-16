@@ -19,7 +19,7 @@ in the app.
 Change any of these numbers, run `npm test`, and push to GitHub.
 
 ## Files
-- `src/run.ts` — the program (`--mode run | dry-run | test`)
+- `src/run.ts` — the program (`--mode run | dry-run | test`; a dry run also lists the newest NPR and Fox headlines)
 - `state/state.json` — which alerts were sent (updated automatically; do not edit)
 - `.github/workflows/breaking-news.yml` — the schedule
 
