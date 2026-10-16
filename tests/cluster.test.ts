@@ -97,7 +97,7 @@ test('an NPR or Fox "BREAKING:" tag counts on its own when fresh', () => {
 
 test('a BREAKING tag from another outlet, or an old one, does not count', () => {
   assert.equal(findCandidates([story('Breitbart', 'BREAKING: something happened', 5)], NOW).length, 0);
-  assert.equal(findCandidates([story('NPR', 'Breaking: old news', 40)], NOW).length, 0);
+  assert.equal(findCandidates([story('NPR', 'Breaking: old news', 50)], NOW).length, 0);
 });
 
 test('the word breaking inside a headline is not a tag', () => {

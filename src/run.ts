@@ -10,7 +10,8 @@ import { alertMessage, sendPush } from './push';
 //   run      normal scheduled behaviour: send an alert if one qualifies, save state
 //   dry-run  show what would happen; sends nothing and saves nothing
 //   test     send one test notification right now (ignores limits), saves nothing
-const mode = process.argv[process.argv.indexOf('--mode') + 1] ?? 'run';
+const modeAt = process.argv.indexOf('--mode');
+const mode = (modeAt >= 0 ? process.argv[modeAt + 1] : undefined) ?? 'run';
 const STATE_PATH = new URL('../state/state.json', import.meta.url);
 
 function loadState(): State {
