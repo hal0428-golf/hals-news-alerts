@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
-import { Candidate, clusterStories, findCandidates } from './cluster';
+import { Candidate, RULES, clusterStories, findCandidates } from './cluster';
 import { FEEDS } from './feeds';
 import { parseStories, Story } from './parse';
 import { LIMITS, State, decide, emptyState, localParts, normalizeState, pruneState } from './policy';
@@ -76,6 +76,18 @@ async function main() {
   const decision = decide(candidates, state, now);
 
   if (mode === 'dry-run') {
+    for (const source of RULES.anchorOutlets) {
+      const newest = stories
+        .filter((s) => s.source === source && s.publishedAt)
+        .sort((a, b) => b.publishedAt!.getTime() - a.publishedAt!.getTime())
+        .slice(0, 10);
+      console.log(`\nNewest ${source} headlines:`);
+      for (const s of newest) {
+        const mins = Math.round((now.getTime() - s.publishedAt!.getTime()) / 60000);
+        console.log(`  ${mins} min ago: ${s.title}\n    ${s.url}`);
+      }
+    }
+
     // Wider than the real rule (6 hours) so a single dry run shows how often stories spread.
     const wide = stories.filter((s) => s.publishedAt && now.getTime() - s.publishedAt.getTime() < 360 * 60000);
     console.log(`\n${wide.length} stories from the last 6 hours. Stories reported by 2+ outlets (most outlets first):`);
