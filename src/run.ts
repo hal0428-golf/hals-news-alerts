@@ -77,11 +77,15 @@ async function main() {
 
   if (mode === 'dry-run') {
     for (const source of RULES.anchorOutlets) {
-      const newest = stories
-        .filter((s) => s.source === source && s.publishedAt)
+      const dated = stories.filter((s) => s.source === source && s.publishedAt);
+      // Same 5-minute allowance as findCandidates: anything later has a wrong date in the feed.
+      const future = dated.filter((s) => s.publishedAt!.getTime() - now.getTime() > 5 * 60000);
+      const newest = dated
+        .filter((s) => !future.includes(s))
         .sort((a, b) => b.publishedAt!.getTime() - a.publishedAt!.getTime())
         .slice(0, 10);
-      console.log(`\nNewest ${source} headlines:`);
+      const skipped = future.length ? ` (skipped ${future.length} dated in the future)` : '';
+      console.log(`\nNewest ${source} headlines${skipped}:`);
       for (const s of newest) {
         const mins = Math.round((now.getTime() - s.publishedAt!.getTime()) / 60000);
         console.log(`  ${mins} min ago: ${s.title}\n    ${s.url}`);
