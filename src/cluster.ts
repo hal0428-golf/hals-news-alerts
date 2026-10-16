@@ -12,7 +12,7 @@ export const RULES = {
   /** Only reports from the last this-many minutes are considered at all. */
   recentMinutes: 90,
   /** An outlet's own "BREAKING:" tag counts on its own if it is this fresh (minutes). */
-  taggedFreshMinutes: 30,
+  taggedFreshMinutes: 45,
   /** Outlets whose own "BREAKING:" tag is trusted. */
   taggedOutlets: ['NPR', 'Fox News'],
 };
